@@ -2,7 +2,8 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { UserToken } from '../models';
-
+import config, { KnownConfigKey } from '../utils/config';
+import store from '../store';
 
 export function initPassport() {
     passport.use(new LocalStrategy(
@@ -12,7 +13,7 @@ export function initPassport() {
         },
         (userName, password, callback) => {
             const user = store.credentials.find(u => u.email === userName && u.password === password);
-
+            //where connecting to database and fetching password and email will be
             if (user) {
                 const { email, roles } = user;
                 const tokenPayload: UserToken = { email, roles };
@@ -22,3 +23,16 @@ export function initPassport() {
             }
         },
     ));
+
+    passport.use(new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: config.get(KnownConfigKey.JwtSecret),
+        },
+        // in this case the user token is actually the same as jwtPayload
+        // can consider simply passing jwtPayload, however it might be stale (common though)
+        // trade-off: lightweight token vs. required info for most API's to reduce user re-query needs
+        (jwtPayload: UserToken, callback) =>
+            callback(null, jwtPayload),
+    ));
+}

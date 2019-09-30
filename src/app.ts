@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-// import controllers from './controllers';
+import controllers from './controllers';
 // import expressWinston from 'express-winston';
 // import { createExpressWinstonOptions } from './utils/logger';
-// import { initPassport } from './utils/passport';
+import { initPassport } from './utils/passport';
 
-// initPassport();
+initPassport();
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // app.use(expressWinston.logger(createExpressWinstonOptions()));
 
-// controllers.forEach(o => app.use(`/api${o.prefix}`, o.router));
+controllers.forEach(o => app.use(`/api${o.prefix}`, o.router));
 
 // app.use(expressWinston.errorLogger(createExpressWinstonOptions()));
 
