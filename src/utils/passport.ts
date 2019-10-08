@@ -15,8 +15,8 @@ export function initPassport() {
             const user = store.credentials.find(u => u.email === userName && u.password === password);
             //where connecting to database and fetching password and email will be
             if (user) {
-                const { email, roles } = user;
-                const tokenPayload: UserToken = { email, roles };
+                const { userHandle, roles, id, avatarUrl } = user;
+                const tokenPayload: UserToken = { userHandle, roles, id, avatarUrl};
                 callback(null, tokenPayload, { message: 'succeeded' });
             } else {
                 callback(null, false, { message: 'failed' });

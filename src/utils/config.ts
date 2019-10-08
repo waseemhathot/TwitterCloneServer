@@ -1,10 +1,14 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config({path: process.env.DOTENV_CONFIG_PATH});
+
 export enum KnownConfigKey {
     JwtSecret = 'jwt-sign-secret',
+    DbServer = 'DB_SERVER',
 }
 
 function get(key: string): string {
-    // TODO: implement properly
-    return 'your_jwt_secret';
+    return 'mongodb://localhost:27017/twitter-clone';
 }
 
 export default {

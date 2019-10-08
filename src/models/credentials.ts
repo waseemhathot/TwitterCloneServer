@@ -5,14 +5,13 @@ export enum UserRole {
 }
 
 export interface UserToken {
-    email: string;
+    userHandle: string
     roles: UserRole[];
+    id: string;
+    avatarUrl: string;
 }
 
-export interface Credential extends UserToken {
+export interface UserCredential extends UserToken {
+    email: string;
     password: string;
-}
-
-export interface UserCredential extends Credential {
-    userId: string;
 }
