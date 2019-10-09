@@ -25,6 +25,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
             avatarUrl: '',
             id: id,
         });
+
         store.users.push({
             name: userHandle,
             avatarUrl: avatarUrl,
@@ -32,15 +33,21 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
         });
 
         rootStore.credentials.addOne({
-            password: password,
+            password: hash,
             email: email,
             userHandle: userHandle,
             roles: [UserRole.User],
             avatarUrl: '',
             id: id,
+        })
+        .then(data => {
+            res.sendStatus(200);
+            next();
+        })
+        .catch(err => {
+            res.sendStatus(err);
+            next();
         });
-
-        res.sendStatus(200);
     });
 
  });

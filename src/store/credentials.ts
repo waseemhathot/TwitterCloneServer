@@ -19,16 +19,21 @@ class CredentialsStore {
         return this.collection.findById(id);
     }
 
-    public findByCred(email: string, password: string): Promise<UserCredential | null> {
-        return this.collection.findOne({ email, password }, true);
-    }
-
     public add(credentials: OptionalId<UserCredential>[]): Promise<void> {
         return this.collection.addMany(credentials);
     }
 
     public addOne(credential: OptionalId<UserCredential>): Promise<void> {
-        return this.collection.addOne(credential);
+        return new Promise(async (resolve, reject) => {
+            const credentials: UserCredential[] = await this.all();
+            const checkDuplicateEmail = credentials.find(o => o.email === credential.email);
+
+            if(!checkDuplicateEmail) {
+                await this.collection.addOne(credential);
+                resolve();
+            } 
+            reject(409);
+        });
     }
 
     public deleteById(id: string | mongodb.ObjectID): Promise<boolean> {
