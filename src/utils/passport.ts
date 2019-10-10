@@ -3,7 +3,11 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { UserToken } from '../models';
 import config, { KnownConfigKey } from '../utils/config';
-import store from '../store';
+import { getDb } from '../middleware/store';
+import CredentialsStore from '../store/credentials';
+import bcrypt from 'bcryptjs';
+import UsersStore from '../store/users';
+import { saltAndHash } from '../utils/hash';
 
 export function initPassport() {
     passport.use(new LocalStrategy(
@@ -11,13 +15,32 @@ export function initPassport() {
             usernameField: 'email',
             passwordField: 'password',
         },
-        (userName, password, callback) => {
-            const user = store.credentials.find(u => u.email === userName && u.password === password);
-            //where connecting to database and fetching password and email will be
-            if (user) {
-                const { userHandle, roles, id, avatarUrl } = user;
-                const tokenPayload: UserToken = { userHandle, roles, id, avatarUrl};
-                callback(null, tokenPayload, { message: 'succeeded' });
+        async (email, password, callback) => {
+            const credentialsStore = new CredentialsStore(getDb()!);
+            const usersStore = new UsersStore(getDb()!);
+
+            const userCredentials = await credentialsStore.findByEmail(email);
+
+            if (userCredentials) {
+
+                bcrypt.compare(password, userCredentials.password, async (err, res) => {
+                    if(res) {
+
+                        const user = await usersStore.findById(userCredentials.id);
+                        if(user) {
+                            const { avatarUrl, id, userHandle } = user;
+                            const tokenPayload: UserToken = { avatarUrl, id, userHandle};
+                            callback(null, tokenPayload, { message: 'succeeded' });
+                        }
+                        else{
+                            callback(null, false, { message: 'failed' });
+                        }
+                    }
+                    else{ 
+                        callback(null, false, { message: 'failed' });
+                    }
+                });
+
             } else {
                 callback(null, false, { message: 'failed' });
             }

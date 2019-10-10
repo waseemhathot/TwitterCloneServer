@@ -1,5 +1,5 @@
 import mongodb from 'mongodb';
-import { UserCredential, User } from '../models';
+import { UserCredential, UserToken } from '../models';
 import { OptionalId } from '../utils/types';
 import { DbEntityCollection } from '../utils/db-entity-collection';
 
@@ -17,6 +17,10 @@ class CredentialsStore {
 
     public findById(id: string | mongodb.ObjectID): Promise<UserCredential | null> {
         return this.collection.findById(id);
+    }
+
+    public findByEmail(email : string): Promise<UserCredential | null> {
+        return this.collection.findOne({ email: email }, true);
     }
 
     public add(credentials: OptionalId<UserCredential>[]): Promise<void> {

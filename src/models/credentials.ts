@@ -1,17 +1,12 @@
-export enum UserRole {
-   User = 'User',
-   Guest = 'Guest',
-   Admin = 'Admin',
-}
 
 export interface UserToken {
-    userHandle: string
-    roles: UserRole[];
     id: string;
+    userHandle: string
     avatarUrl: string;
 }
 
-export interface UserCredential extends UserToken {
+export interface UserCredential {
+    id: string;
     email: string;
     password: string;
 }

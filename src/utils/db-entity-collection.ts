@@ -16,9 +16,8 @@ export class DbEntityCollection<T extends DbEntitiy> {
     }
 
     public async findById(id: string | mongodb.ObjectID, removeObjectId = true): Promise<T | null> {
-        const documentId = new mongodb.ObjectID(id);
         const projection = removeObjectId ? { _id: 0 } : undefined;
-        return await this.collection.findOne({ _id: documentId }, { projection });
+        return await this.collection.findOne({ id: id }, { projection });
     }
 
     public async findOne(filter: FilterQuery<T>, removeObjectId = true): Promise<T | null> {
@@ -29,7 +28,6 @@ export class DbEntityCollection<T extends DbEntitiy> {
     public async addMany(entities: OptionalId<T>[]): Promise<void> {
         const mappedEntities = entities.map(value => {
             const id = new mongodb.ObjectID();
-            value.id = id.toHexString();
             return Object.assign({}, value, { _id: id }) as T & { _id: mongodb.ObjectID };
         });
         await this.collection.insertMany(mappedEntities);
@@ -37,7 +35,6 @@ export class DbEntityCollection<T extends DbEntitiy> {
 
     public async addOne(entity: OptionalId<T>): Promise<void> { 
         const id = new mongodb.ObjectID();
-        entity.id = id.toHexString();
         const newEntity = {};
         Object.assign(newEntity, entity, { _id: id }) as T & { _id: mongodb.ObjectID };
         await this.collection.insertOne(newEntity);
