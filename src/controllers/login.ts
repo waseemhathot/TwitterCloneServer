@@ -6,7 +6,7 @@ import { IVerifyOptions } from 'passport-local';
 import config, { KnownConfigKey } from '../utils/config';
 
 const router = express.Router();
-const jwtSecret = config.get(KnownConfigKey.JwtSecret);
+const jwtSecret: string = config.get(KnownConfigKey.JwtSecret);
 
 router.post('/', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     passport.authenticate('local', { session: false }, (err: Error, user: any, info: IVerifyOptions) => {

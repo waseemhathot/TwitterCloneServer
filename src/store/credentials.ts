@@ -1,5 +1,5 @@
 import mongodb from 'mongodb';
-import { UserCredential, UserToken } from '../models';
+import { UserCredential } from '../models';
 import { OptionalId } from '../utils/types';
 import { DbEntityCollection } from '../utils/db-entity-collection';
 

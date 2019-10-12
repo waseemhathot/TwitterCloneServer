@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import config, { KnownConfigKey } from '../utils/config';
+import config ,{ KnownConfigKey }from '../utils/config';
 import { MongoConnection } from '../utils/mongo-connections';
 import rootStore, { RootStore } from '../store/root';
 
