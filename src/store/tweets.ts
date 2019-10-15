@@ -12,7 +12,7 @@ class TweetsStore {
     }
 
     public all(removeObjectId = true): Promise<Tweet[]> {
-        return this.collection.all(removeObjectId);
+        return this.collection.all(removeObjectId, { postDate: -1 });
     }
 
     public findById(id: string | mongodb.ObjectID): Promise<Tweet | null> {

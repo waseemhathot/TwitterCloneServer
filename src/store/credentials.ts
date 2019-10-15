@@ -9,6 +9,7 @@ class CredentialsStore {
 
     constructor(db: mongodb.Db) {
         this.collection = new DbEntityCollection(db.collection<UserCredential>('credentials'))
+        this.collection.createIndex({email: 1}, true);
     }
 
     public all(removeObjectId = true): Promise<UserCredential[]> {
@@ -28,16 +29,8 @@ class CredentialsStore {
     }
 
     public addOne(credential: OptionalId<UserCredential>): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            const credentials: UserCredential[] = await this.all();
-            const checkDuplicateEmail = credentials.find(o => o.email === credential.email);
+        return this.collection.addOne(credential);
 
-            if(!checkDuplicateEmail) {
-                await this.collection.addOne(credential);
-                resolve();
-            } 
-            reject(409);
-        });
     }
 
     public deleteById(id: string | mongodb.ObjectID): Promise<boolean> {

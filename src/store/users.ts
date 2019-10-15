@@ -9,6 +9,14 @@ class UsersStore {
 
     constructor(db: mongodb.Db) {
         this.collection = new DbEntityCollection(db.collection<UserToken>('users'))
+        
+        this.collection.createIndex({
+            userHandle: 1,
+        }, true);
+
+        this.collection.createIndex({
+            email: 1,
+        }, true);
     }
 
     public all(removeObjectId = true): Promise<UserToken[]> {
@@ -23,21 +31,18 @@ class UsersStore {
         return this.collection.addMany(users);
     }
 
-    public addOne(user: OptionalId<UserToken>): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            const users: UserToken[] = await this.all();
-            const checkDuplicateUserHandle = users.find(o => o.userHandle === user.userHandle);
-
-            if(!checkDuplicateUserHandle) {
-                await this.collection.addOne(user);
-                resolve();
-            } 
-            reject(409);
-        });
+    public  addOne(user: OptionalId<UserToken>): Promise<void> {
+        return this.collection.addOne(user);
     }
 
     public deleteById(id: string | mongodb.ObjectID): Promise<boolean> {
         return this.collection.deleteById(id);
+    }
+
+    public updateDate(id: string, newDate: string) {
+        return this.collection.updateOne(id, {
+            $set: { field : newDate }
+        });
     }
 
     public replace(user: UserToken, upsert = false) {

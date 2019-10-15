@@ -10,9 +10,13 @@ export class DbEntityCollection<T extends DbEntitiy> {
 
     constructor(private readonly collection: mongodb.Collection) { }
 
-    public async all(removeObjectId = true): Promise<T[]> {
+    public createIndex(indexes: any , isUnique = false){
+        this.collection.createIndex(indexes, { unique: isUnique});
+    }
+
+    public async all(removeObjectId = true, sortByKey: any = { id: -1}): Promise<T[]> {
         const projection = removeObjectId ? { _id: 0 } : undefined;
-        return await this.collection.find({}, { projection }).toArray();
+        return await this.collection.find({}, { projection }).sort(sortByKey).toArray();
     }
 
     public async findById(id: string | mongodb.ObjectID, removeObjectId = true): Promise<T | null> {
@@ -41,9 +45,12 @@ export class DbEntityCollection<T extends DbEntitiy> {
     }
 
     public async deleteById(id: string | mongodb.ObjectID): Promise<boolean> {
-        const documentId = new mongodb.ObjectID(id);
-        const res = await this.collection.deleteOne({ _id: documentId });
+        const res = await this.collection.deleteOne({ id: id });
         return !!res.deletedCount;
+    }
+
+    public async updateOne(id: string, update: any) {
+        await this.collection.updateOne({ id: id }, update);
     }
 
     public async replace(entity: T , upsert = false): Promise<boolean> { 

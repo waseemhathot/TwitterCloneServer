@@ -7,7 +7,6 @@ import { getDb } from '../middleware/store';
 import CredentialsStore from '../store/credentials';
 import bcrypt from 'bcryptjs';
 import UsersStore from '../store/users';
-import { saltAndHash } from '../utils/hash';
 
 export function initPassport() {
     passport.use(new LocalStrategy(
@@ -18,25 +17,24 @@ export function initPassport() {
         async (email, password, callback) => {
             const credentialsStore = new CredentialsStore(getDb()!);
             const usersStore = new UsersStore(getDb()!);
-
             const userCredentials = await credentialsStore.findByEmail(email);
 
             if (userCredentials) {
 
                 bcrypt.compare(password, userCredentials.password, async (err, res) => {
-                    if(res) {
+                    if (res) {
 
                         const user = await usersStore.findById(userCredentials.id);
-                        if(user) {
-                            const { avatarUrl, id, userHandle } = user;
-                            const tokenPayload: UserToken = { avatarUrl, id, userHandle};
-                            callback(null, tokenPayload, { message: 'succeeded' });
+                        if (user) {
+                            usersStore.updateDate(user.id, Date());
+
+                            callback(null, user, { message: 'succeeded' });
                         }
-                        else{
+                        else {
                             callback(null, false, { message: 'failed' });
                         }
                     }
-                    else{ 
+                    else {
                         callback(null, false, { message: 'failed' });
                     }
                 });
