@@ -24,7 +24,7 @@ class UsersStore {
     }
 
     public findById(id: string | mongodb.ObjectID): Promise<UserToken | null> {
-        return this.collection.findById(id);
+        return this.collection.findById(id, { _id : 0, email : 0 });
     }
 
     public add(users: OptionalId<UserToken>[]): Promise<void> {
@@ -41,7 +41,7 @@ class UsersStore {
 
     public updateDate(id: string, newDate: string) {
         return this.collection.updateOne(id, {
-            $set: { field : newDate }
+            $set: { lastLoginDate : newDate }
         });
     }
 

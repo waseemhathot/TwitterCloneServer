@@ -18,7 +18,7 @@ async function addUserCredsToDb(rootStore: RootStore ,userCreds: UserCredential)
 }
 
 async function addUserTokenToDb(rootStore: RootStore, userToken: UserToken): Promise<void> {
-        await rootStore.users.addOne(userToken);
+    await rootStore.users.addOne(userToken);
 }
 
 router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -50,9 +50,6 @@ export function initPassport() {
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: config.get(KnownConfigKey.JwtSecret),
         },
-        // in this case the user token is actually the same as jwtPayload
-        // can consider simply passing jwtPayload, however it might be stale (common though)
-        // trade-off: lightweight token vs. required info for most API's to reduce user re-query needs
         (jwtPayload: UserToken, callback) =>
             callback(null, jwtPayload),
     ));

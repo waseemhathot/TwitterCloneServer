@@ -2,7 +2,7 @@
 export interface Tweet {
     id: string;
     userId: string;
-    stars: number;
+    starsByUserId: string[];
     text: string;
     postDate: string;
     userHandle: string;

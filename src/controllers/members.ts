@@ -1,17 +1,41 @@
 import express from 'express';
-import { authenticate } from '../middleware/auth';
+import { resolveStore } from '../middleware/store';
 
 const router = express.Router();
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req: express.Request, res: express.Response) => {
 
-    // const user = store.users.find(o => o.id === req.params.id)
-    // if(user){
-    //     res.send(user);
-    // }
-    // else{ 
-    //     res.send(404);
-    // }
+    const rootStore = resolveStore(res);
+    const id = req.params.id;
+
+    try {
+        const user = await rootStore.users.findById(id);
+        if (user) {
+            res.send(user).status(200);
+        }
+        res.sendStatus(404);
+
+    }
+    catch {
+        res.sendStatus(404);
+    }
+});
+
+router.get('/:id/tweets', async (req: express.Request, res: express.Response) => {
+    const rootStore = resolveStore(res);
+    const id = req.params.id;
+
+    try { 
+        const tweets = await rootStore.tweets.findManyByUserId(id);
+        if(tweets) {
+            res.status(200).send(tweets);
+        }
+        res.sendStatus(404);
+    }
+    catch { 
+        res.sendStatus(404);
+    }
+
 });
 
 export default router;

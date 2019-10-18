@@ -6,7 +6,7 @@ import { connectDb } from './middleware/store';
 async function init() {
     await connectDb();
     
-    app.set('port', process.env.PORT || 3000);
+    app.set('port', process.env.PORT || 9000);
 
     const server = app.listen(app.get('port'), () => {
         console.log(

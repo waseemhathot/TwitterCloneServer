@@ -14,13 +14,16 @@ export class DbEntityCollection<T extends DbEntitiy> {
         this.collection.createIndex(indexes, { unique: isUnique});
     }
 
-    public async all(removeObjectId = true, sortByKey: any = { id: -1}): Promise<T[]> {
+    public async all(removeObjectId = true, sortByKey: any = { id: -1 }): Promise<T[]> {
         const projection = removeObjectId ? { _id: 0 } : undefined;
         return await this.collection.find({}, { projection }).sort(sortByKey).toArray();
     }
 
-    public async findById(id: string | mongodb.ObjectID, removeObjectId = true): Promise<T | null> {
-        const projection = removeObjectId ? { _id: 0 } : undefined;
+    public async findMany(filter: FilterQuery<T>, sortByKey: any = { id: -1 }, projection: any = { _id: 0 }) {
+        return await this.collection.find(filter, { projection }).sort(sortByKey).toArray();
+    }
+
+    public async findById(id: string | mongodb.ObjectID, projection: any = { _id: 0 }): Promise<T | null> {
         return await this.collection.findOne({ id: id }, { projection });
     }
 
@@ -49,7 +52,7 @@ export class DbEntityCollection<T extends DbEntitiy> {
         return !!res.deletedCount;
     }
 
-    public async updateOne(id: string, update: any) {
+    public async updateOne(id: string, update: mongodb.FilterQuery<any>) {
         await this.collection.updateOne({ id: id }, update);
     }
 
