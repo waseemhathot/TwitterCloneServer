@@ -34,6 +34,7 @@ router.post('/', authenticate(), async (req: express.Request, res: express.Respo
 
     const rootStore = resolveStore(res);
     const user = req.user as UserToken;
+
     if (user) {
 
         const currDate = Date();
@@ -77,7 +78,9 @@ router.delete('/:id', authenticate(), async (req: express.Request, res: express.
                 rootStore.tweets.deleteById(tweet.id);
                 res.sendStatus(204);
             }
-            res.sendStatus(403);
+            else{
+                res.sendStatus(403);
+            }
         }
     }
     catch {
