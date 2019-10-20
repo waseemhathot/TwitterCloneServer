@@ -7,8 +7,8 @@ import { UserToken, UserCredential } from '../models';
 import { RootStore } from '../store/root';
 import jwt from 'jsonwebtoken';
 import config, { KnownConfigKey } from '../utils/config';
-
-
+import joi from 'joi';
+import registerValidationSchema from '../validators/register-validator';
 
 const router = express.Router();
 const jwtSecret: string = config.get(KnownConfigKey.JwtSecret);
@@ -26,6 +26,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
     const id: string = uuid();
     const rootStore = resolveStore(res);
 
+    const {error, value: v} = joi.validate(req.body, registerValidationSchema);
+    if (error) {
+        next(error);
+        return;
+    };
+    
     const user: UserToken = {
         userHandle: req.body.userHandle,
         avatarUrl: req.body.avatarUrl,
@@ -57,7 +63,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
             });
         });
     }
-    catch(err) {
+    catch {
         res.sendStatus(409);
     }
 });

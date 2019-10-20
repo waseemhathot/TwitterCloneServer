@@ -1,9 +1,18 @@
 import express from 'express';
 import { resolveStore } from '../middleware/store';
+import { retrieveAndSendTweets } from './tweets';
+import joi from 'joi';
+import membersValidationSchema from '../validators/members-validator';
 
 const router = express.Router();
 
-router.get('/:id', async (req: express.Request, res: express.Response) => {
+router.get('/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+
+    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
+    if (error) {
+        next(error);
+        return;
+    };
 
     const rootStore = resolveStore(res);
     const id = req.params.id;
@@ -13,24 +22,29 @@ router.get('/:id', async (req: express.Request, res: express.Response) => {
         if (user) {
             res.send(user).status(200);
         }
-        res.sendStatus(404);
-
+        else {
+            res.sendStatus(404);
+        }
     }
     catch {
         res.sendStatus(404);
     }
 });
 
-router.get('/:id/tweets', async (req: express.Request, res: express.Response) => {
-    const rootStore = resolveStore(res);
-    const id = req.params.id;
+router.get('/:id/tweets', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    
+    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
+    if (error) {
+        next(error);
+        return;
+    };
 
     try { 
+        const rootStore = resolveStore(res);
+        const id = req.params.id;
         const tweets = await rootStore.tweets.findManyByUserId(id);
-        if(tweets) {
-            res.status(200).send(tweets);
-        }
-        res.sendStatus(404);
+
+        retrieveAndSendTweets(req, res, tweets);
     }
     catch { 
         res.sendStatus(404);

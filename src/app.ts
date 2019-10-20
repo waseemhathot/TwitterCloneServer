@@ -3,6 +3,7 @@ import cors from 'cors';
 import controllers from './controllers';
 import { initPassport } from './utils/passport';
 import storeMiddleware from './middleware/store';
+import { validationErrorHandler } from './middleware/error-handler';
 
 initPassport();
 
@@ -14,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(storeMiddleware());
 
 controllers.forEach(o => app.use(`/api${o.prefix}`, o.router));
+
+app.use(validationErrorHandler());
 
 
 // app.use(error);
