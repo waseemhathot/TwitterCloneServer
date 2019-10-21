@@ -23,10 +23,6 @@ class TweetsStore {
         return this.collection.findMany({ userId: id }, { postDate: -1 })
     }
 
-    public add(tweets: OptionalId<Tweet>[]): Promise<void> {
-        return this.collection.addMany(tweets);
-    }
-
     public addOne(tweet: OptionalId<Tweet>): Promise<void> {
         return this.collection.addOne(tweet);
     }
@@ -59,10 +55,6 @@ class TweetsStore {
 
     public deleteById(id: string | mongodb.ObjectID): Promise<boolean> {
         return this.collection.deleteById(id);
-    }
-
-    public replace(tweet: Tweet, upsert = false) {
-        return this.collection.replace(tweet, upsert);
     }
 }
 

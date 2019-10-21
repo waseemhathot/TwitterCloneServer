@@ -27,10 +27,6 @@ class UsersStore {
         return this.collection.findById(id, { _id : 0, email : 0 });
     }
 
-    public add(users: OptionalId<UserToken>[]): Promise<void> {
-        return this.collection.addMany(users);
-    }
-
     public  addOne(user: OptionalId<UserToken>): Promise<void> {
         return this.collection.addOne(user);
     }
@@ -43,10 +39,6 @@ class UsersStore {
         return this.collection.updateOne(id, {
             $set: { lastLoginDate : newDate }
         });
-    }
-
-    public replace(user: UserToken, upsert = false) {
-        return this.collection.replace(user, upsert);
     }
 }
 

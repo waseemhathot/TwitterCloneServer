@@ -24,10 +24,6 @@ class CredentialsStore {
         return this.collection.findOne({ email: email }, true);
     }
 
-    public add(credentials: OptionalId<UserCredential>[]): Promise<void> {
-        return this.collection.addMany(credentials);
-    }
-
     public addOne(credential: OptionalId<UserCredential>): Promise<void> {
         return this.collection.addOne(credential);
 
@@ -35,10 +31,6 @@ class CredentialsStore {
 
     public deleteById(id: string | mongodb.ObjectID): Promise<boolean> {
         return this.collection.deleteById(id);
-    }
-
-    public replace(credential: UserCredential, upsert = false) {
-        return this.collection.replace(credential, upsert);
     }
 }
 

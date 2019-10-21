@@ -32,14 +32,6 @@ export class DbEntityCollection<T extends DbEntitiy> {
         return await this.collection.findOne(filter, { projection });
     }
 
-    public async addMany(entities: OptionalId<T>[]): Promise<void> {
-        const mappedEntities = entities.map(value => {
-            const id = new mongodb.ObjectID();
-            return Object.assign({}, value, { _id: id }) as T & { _id: mongodb.ObjectID };
-        });
-        await this.collection.insertMany(mappedEntities);
-    }
-
     public async addOne(entity: OptionalId<T>): Promise<void> { 
         const id = new mongodb.ObjectID();
         const newEntity = {};
@@ -54,12 +46,5 @@ export class DbEntityCollection<T extends DbEntitiy> {
 
     public async updateOne(id: string, update: mongodb.FilterQuery<any>) {
         await this.collection.updateOne({ id: id }, update);
-    }
-
-    public async replace(entity: T , upsert = false): Promise<boolean> { 
-        const documentId = new mongodb.ObjectID(entity.id);
-        const res = await this.collection.replaceOne({ _id: documentId }, entity, { upsert });
-        return !!(res.modifiedCount + res.upsertedCount);
-
     }
 }

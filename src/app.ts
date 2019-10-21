@@ -18,7 +18,4 @@ controllers.forEach(o => app.use(`/api${o.prefix}`, o.router));
 
 app.use(validationErrorHandler());
 
-
-// app.use(error);
-
 export default app;
