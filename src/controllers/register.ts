@@ -9,6 +9,8 @@ import jwt from 'jsonwebtoken';
 import config, { KnownConfigKey } from '../utils/config';
 import joi from 'joi';
 import registerValidationSchema from '../validators/register-validator';
+import { joiValidation } from '../middleware/joiValidation';
+
 
 const router = express.Router();
 const jwtSecret: string = config.get(KnownConfigKey.JwtSecret);
@@ -21,16 +23,11 @@ async function addUserTokenToDb(rootStore: RootStore, userToken: UserToken): Pro
     await rootStore.users.addOne(userToken);
 }
 
-router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/', joiValidation(registerValidationSchema, (req: express.Request) => req.body),
+async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     
     const id: string = uuid();
     const rootStore = resolveStore(res);
-
-    const {error, value: v} = joi.validate(req.body, registerValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
     
     const user: UserToken = {
         userHandle: req.body.userHandle,

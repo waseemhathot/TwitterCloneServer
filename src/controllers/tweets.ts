@@ -3,10 +3,11 @@ import { authenticate } from '../middleware/auth';
 import { resolveStore } from '../middleware/store';
 import uuid from 'uuid';
 import { UserToken, Tweet } from '../models';
-import { IVerifyOptions } from 'passport-local';
-import joi from 'joi';
-import tweetsValidationSchema from '../validators/tweets-validator'
-import membersValidationSchema from '../validators/members-validator'
+import tweetsValidationSchema from '../validators/tweets-validator';
+import membersValidationSchema from '../validators/members-validator';
+import { joiValidation } from '../middleware/joiValidation';
+import { retrieveAndSendTweets } from './router-utils';
+
 
 const router = express.Router();
 
@@ -24,13 +25,8 @@ router.get('/', async (req: express.Request, res: express.Response, next: expres
 });
 
 
-router.post('/', authenticate(), async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
-
-    const {error, value: v} = joi.validate(req.body, tweetsValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
+router.post('/', authenticate(), joiValidation(tweetsValidationSchema, (req: express.Request) => req.body),
+ async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
 
     const rootStore = resolveStore(res);
     const user = req.user as UserToken;
@@ -57,13 +53,8 @@ router.post('/', authenticate(), async (req: express.Request, res: express.Respo
     }
 });
 
-router.delete('/:id', authenticate(), async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
-    
-    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
+router.delete('/:id', authenticate(), joiValidation(membersValidationSchema, (req: express.Request) => req.params),
+ async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
   
     try {
         const rootStore = resolveStore(res);
@@ -89,14 +80,9 @@ router.delete('/:id', authenticate(), async (req: express.Request, res: express.
 
 });
 
-router.post('/:id/star-toggle', authenticate(), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-
-    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
-
+router.post('/:id/star-toggle', authenticate(), joiValidation(membersValidationSchema, (req: express.Request) => req.params),
+ async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+   
     try {
         const rootStore = resolveStore(res);
         const tweetId = req.params.id;
@@ -116,35 +102,5 @@ router.post('/:id/star-toggle', authenticate(), async (req: express.Request, res
         res.sendStatus(err);
     }
 });
-
- export function retrieveAndSendTweets(req: express.Request, res: express.Response, tweets: Tweet[]) {
-    
-    authenticate((err: Error, user: UserToken, info: IVerifyOptions) => {
-        
-        const filteredTweets = tweets.map(tweet => {
-
-            let starredByMe = false;
-            if (user) {
-                const checkIfStarredByMe = tweet.starsByUserId.findIndex(o => o === user.id);
-                starredByMe = checkIfStarredByMe >= 0 ? true : false;
-            }
-
-            const filteredTweet = {
-                stars: tweet.starsByUserId.length,
-                starredByMe: starredByMe,
-                avatarUrl: tweet.avatarUrl,
-                id: tweet.id,
-                postDate: tweet.postDate,
-                text: tweet.text,
-                userId: tweet.userId,
-                userHandle: tweet.userHandle,
-            }
-
-            return filteredTweet;
-        })
-
-        res.status(200).send(filteredTweets);
-    })(req, res);
-}
 
 export default router;

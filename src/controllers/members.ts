@@ -1,18 +1,13 @@
 import express from 'express';
 import { resolveStore } from '../middleware/store';
-import { retrieveAndSendTweets } from './tweets';
-import joi from 'joi';
+import { retrieveAndSendTweets } from './router-utils';
 import membersValidationSchema from '../validators/members-validator';
+import { joiValidation } from '../middleware/joiValidation';
 
 const router = express.Router();
 
-router.get('/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-
-    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
+router.get('/:id', joiValidation(membersValidationSchema, (req: express.Request) => req.params),
+ async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 
     const rootStore = resolveStore(res);
     const id = req.params.id;
@@ -31,22 +26,17 @@ router.get('/:id', async (req: express.Request, res: express.Response, next: exp
     }
 });
 
-router.get('/:id/tweets', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    
-    const {error, value: v} = joi.validate(req.params, membersValidationSchema);
-    if (error) {
-        next(error);
-        return;
-    };
+router.get('/:id/tweets', joiValidation(membersValidationSchema, (req: express.Request) => req.params),
+ async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 
-    try { 
+    try {
         const rootStore = resolveStore(res);
         const id = req.params.id;
         const tweets = await rootStore.tweets.findManyByUserId(id);
 
         retrieveAndSendTweets(req, res, tweets);
     }
-    catch { 
+    catch {
         res.sendStatus(404);
     }
 
